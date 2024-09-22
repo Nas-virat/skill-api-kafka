@@ -1,0 +1,29 @@
+stages:
+  - test
+  - build
+ 
+test-api:
+  stage: test
+  image: golang:latest
+  script:
+    - cd api/skill
+    - go test -v ./...
+ 
+test-consumer:
+  stage: test
+  image: golang:latest
+  script:
+    - cd consumer/skill
+    - go test -v ./...
+
+build-api:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - apk update
+    - apk add make
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+    - make push
